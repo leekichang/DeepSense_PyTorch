@@ -34,7 +34,7 @@ class IndConvBlock(nn.Module):
 class MerConvBlock(nn.Module):
     def __init__(self):
         super(MerConvBlock, self).__init__()
-        self.conv1 = nn.Conv3d(in_channels=CONV_NUM, out_channels=CONV_NUM,  kernel_size=(1, 2, CONV_MERGE_LENS[0]), stride=1)
+        self.conv1 = nn.Conv3d(in_channels=CONV_NUM, out_channels=CONV_NUM,  kernel_size=(1, 2, CONV_MERGE_LENS[0]), stride=1, padding=1)
         self.conv2 = nn.Conv3d(in_channels=CONV_NUM, out_channels=CONV_NUM,  kernel_size=(1, 2, CONV_MERGE_LENS[1]), padding=1)
         self.conv3 = nn.Conv3d(in_channels=CONV_NUM, out_channels=CONV_NUM,  kernel_size=(1, 2, CONV_MERGE_LENS[2]), padding=1)
         self.relu = nn.ReLU()
@@ -61,14 +61,14 @@ class DeepSense(nn.Module):
         self.accIndConv  = IndConvBlock()
         self.gyroIndConv = IndConvBlock()
         self.mergeConv   = MerConvBlock()
-        self.GRU         = nn.GRU(input_size=1080, hidden_size=120, num_layers=2, dropout=0.5)
+        self.GRU         = nn.GRU(input_size=480, hidden_size=120, num_layers=2, dropout=0.5)
         self.classifier  = nn.Linear(in_features=64*120, out_features=6)
     def forward(self, X):
         '''
         X: input tensor shape (B, C, 20, 120) => C is 1 for the HAR data
         '''
-        acc  = self.accIndConv( X[:,:, :10, :])
-        gyro = self.gyroIndConv(X[:,:, 10:, :])
+        acc  = self.accIndConv( X[:,:, :, :60])
+        gyro = self.gyroIndConv(X[:,:, :, 60:])
         X = torch.cat((acc, gyro), dim=3)
         X = self.mergeConv(X)
         X = X.reshape(X.shape[0], X.shape[1], -1)

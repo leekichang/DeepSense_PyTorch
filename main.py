@@ -14,7 +14,7 @@ print(f"WORKING WITH {DEVICE}")
 model = DeepSense().to(DEVICE)
 
 trainset, testset = DM('./dataset/train'), DM('./dataset/test')
-LR = 0.0005
+LR = 0.001
 OPTIM = optim.Adam(model.parameters(), lr=LR)
 BATCH_SIZE = 128
 criterion  = nn.CrossEntropyLoss()
