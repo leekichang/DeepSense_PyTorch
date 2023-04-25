@@ -6,17 +6,20 @@ import torch.optim as optim
 import sklearn.metrics as metrics
 from torch.utils.data import DataLoader
 
-from DeepSense import *
+from DeepSense_ECG import *
+import warnings
+
+warnings.filterwarnings(action='ignore')
 
 DEVICE = 'cuda' if torch.cuda.is_available() else 'cpu'
 print(f"WORKING WITH {DEVICE}")
 
 model = DeepSense().to(DEVICE)
-
-trainset, testset = DM('./dataset/train'), DM('./dataset/test')
-LR = 0.001
+PATH  = './dataset/MITBIH'
+trainset, testset = DM(f'{PATH}/train'), DM(f'{PATH}/test')
+LR = 0.0005
 OPTIM = optim.Adam(model.parameters(), lr=LR)
-BATCH_SIZE = 128
+BATCH_SIZE = 32
 criterion  = nn.CrossEntropyLoss()
 EPOCH = 100
 
@@ -55,4 +58,5 @@ for epoch in tqdm(range(EPOCH), ascii=True):
             result_anno = np.hstack((result_anno, Y_np))
         acc = metrics.accuracy_score(y_true=result_anno, y_pred=result_pred)
     
-    print(f'\n({epoch+1:03}/{EPOCH}) ACC:{acc}')
+    print(metrics.classification_report(y_true=result_anno, y_pred=result_pred))
+    print(f'\n({epoch+1:03}/{EPOCH}) ACC:{acc*100:.2f}%')
