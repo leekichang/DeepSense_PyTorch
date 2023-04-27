@@ -14,7 +14,7 @@ print(f"WORKING WITH {DEVICE}")
 model = DeepSense().to(DEVICE)
 PATH  = './dataset/HAR_UCI'
 trainset, testset = DM(f'{PATH}/train'), DM(f'{PATH}/test')
-LR = 0.0001
+LR = 0.00001
 OPTIM = optim.Adam(model.parameters(), lr=LR)
 BATCH_SIZE = 32
 criterion  = nn.CrossEntropyLoss()
@@ -55,4 +55,4 @@ for epoch in tqdm(range(EPOCH), ascii=True):
             result_anno = np.hstack((result_anno, Y_np))
         acc = metrics.accuracy_score(y_true=result_anno, y_pred=result_pred)
     
-    print(f'\n({epoch+1:03}/{EPOCH}) ACC:{acc*100}')
+    print(f'\n({epoch+1:03}/{EPOCH}) ACC:{acc*100:.2f}%')
